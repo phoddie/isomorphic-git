@@ -10,7 +10,7 @@ function inflate(buffer, options = {}) {
 		buffer = buffer.buffer;
 
 	const i = new Inflate(options);
-	i.push(buffer, true);
+	i.push(buffer);
 	if (i.err)
 		throw new Error;
 	return ("string" === options.to) ? String.fromArrayBuffer(i.result) : i.result;
