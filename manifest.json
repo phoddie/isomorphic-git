@@ -181,6 +181,10 @@
 		"scroller",
 		"mod/inflate",
 
+		"fs/moddable",
+		"fs/moddable/Stat",
+		"http/moddable",
+
 		"api/*",
 		"commands/*",
 		"errors/*",
