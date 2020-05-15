@@ -167,7 +167,7 @@ async function doStuff () {
 
 		both times on Mac btw.
 	*/
-		url: 'https://github.com/isomorphic-git/test.empty',
+		url: 'https://github.com/isomorphic-git/test.empty.git',
 		headers: {
 			'User-Agent': userAgent
 		}
