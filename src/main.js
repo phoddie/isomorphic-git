@@ -45,6 +45,9 @@ globalThis.Buffer = ModdableBuffer
 // process.domain shim (used by 'async-lock'?!)
 globalThis.process = Object.freeze({domain: null});
 
+const dir = config.file.root + "tmp/moddable-test2"
+trace(`Working directory: ${dir}\n`);
+
 // Main code
 const userAgent = 'git/isomorphic-git moddable-branch'
 let string = ''
@@ -177,11 +180,12 @@ async function doStuff () {
 		return
 	}
 
+trace("MAIN - INIT\n");
 	await init({
 		fs,
-		dir: '/tmp/moddable-test',
+		dir,
 	})
-	let files = await fs.promises.readdir('/tmp/moddable-test/.git')
+	let files = await fs.promises.readdir(dir + "/.git");
 	// should print:
 	// [
 	//   "config",
@@ -195,17 +199,20 @@ async function doStuff () {
 	string = JSON.stringify(files, null, 2)
 	console.log(string)
 
+trace("MAIN - ADDREMOTE\n");
+
 	await addRemote({
 		fs,
-		dir: '/tmp/moddable-test',
+		dir,
 		remote: 'origin',
 		url: 'https://github.com/isomorphic-git/test.empty.git',
 		force: true,
 	})
 
+trace("MAIN - CURRENTBRANCH\n");
 	const branch = await currentBranch({
 		fs,
-		dir: '/tmp/moddable-test',
+		dir,
 	})
 	// should print "master"
 	title = 'currentBranch'
@@ -214,13 +221,14 @@ async function doStuff () {
 
 	// This should create a packfile and a packfile index in
 	// /tmp/moddable-test/.git/objects/pack
+trace("MAIN - FETCH\n");
 	title = 'fetch...'
 	string = ''
 	const fetchResult = await fetch({
 		http,
 		fs,
 		corsProxy: config.proxy && 'http://localhost:9998',
-		dir: '/tmp/moddable-test',
+		dir,
 		onMessage (msg) {
 			console.log(msg)
 			string += msg;
@@ -258,9 +266,10 @@ async function doStuff () {
 	let phase = ''
 	let strings = []
 	try {
+trace("MAIN - CHECKOUT\n");
 		await checkout({
 			fs,
-			dir: '/tmp/moddable-test',
+			dir,
 			ref,
 			onProgress (val) {
 				console.log(JSON.stringify(val))
@@ -279,6 +288,7 @@ async function doStuff () {
 		console.log(e.message)
 		debugger
 	}
+trace("MAIN - EXIT\n");
 }
 
 if (config.wifi) {
