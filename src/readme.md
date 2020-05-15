@@ -1,5 +1,5 @@
 # Port of Isomorphic-Git to Moddable SDK
-#### Updated May 2, 2020
+#### Updated May 15, 2020
 #### Peter Hoddie
 
 ## Introduction
@@ -53,88 +53,44 @@ The original code uses relative paths to import modules. On embedded targets, th
 - Added `console.log` that maps to `trace` for XS
 - `BaseError` implements getter/setter to allow error objects to be preloaded (works around "override mistake")
 - XS does not support nulls in strings. The `splitAndAssert` code depends on those. Workaround implemented. It looks like this may appear in other places (`readObject`)
+- [X] Moddable File is flat FS only.... OK... let's fix that.
+  - [x] `createDirectory` implemented for macOS simulator for development
+  - [X] FAT32 support for ESP32 added
+- [x] SHA module should use Moddable SDK crypto -- smaller and faster
 
 ### Open issues 
 
-- [ ] Moddable File is flat FS only.... OK... let's fix that.
-  - [x] `createDirectory` implemented for macOS simulator for development
-  - [ ] FAT32 support for ESP32 added
-- [x] SHA module should use Moddable SDK crypto -- smaller and faster
 - Use native miniz instead of pako.
   - [x] inflate, including streaming API
   - [ ] deflate (TODO: do we need this? It's only used for loose object file format)
+- `utils/supportsDecompressionStream` is unneeded on Moddable target
 
-### Patches
+### Stub Notes:
 
-The `createDirectory` function is needed. For macOS hosts, patch it in as follows:
-
-- In `file.js` add this to the `File` class:
-
-```
-	static createDirectory(path) @ "xs_file_createeDirectory";
-```
-- In `mac/modFile.c` add this:
-
-```
-void xs_file_createeDirectory(xsMachine *the)
-{
-	char *path = xsmcToString(xsArg(0));
-	int result = mkdir(path, 0755);
-	if (result) {
-		switch (errno) {
-			case EEXIST:
-				break;
-			default:
-				xsUnknownError("failed");
-				break;
-		}
-	}
-	xsResult = xsArg(0);
-}
-```
-
-The same should work for Linux. It should also work for Windows by replacing the call to `mkdir` with:
-
-```
-	int result = _mkdir(path);
-```
-
-There's no patch yet for ESP32 so for now put this in `esp32/modFile.c`:
-
-```
-void xs_file_createeDirectory(xsMachine *the)
-{
-  xsDebugger();
-	xsResult = xsArg(0);
-}
-```
-
-Stub Notes:
-
-## "utils/sha1": "../packages/stub/sha1"
+#### "utils/sha1": "../packages/stub/sha1"
 
 This seems to work now! To swap in pure JS version, use "./utils/sha1"
 
-## "pako": "../packages/stub/pako"
+####  "pako": "../packages/stub/pako"
 
 This seems to work now! To swap in pure JS version, use "../node_modules/pako/dist/pako.min" (Uses patch in `patches` folder applied by `npm run postinstall`)
 
-## "utils/toHex": "../packages/stub/toHex"
+####  "utils/toHex": "../packages/stub/toHex"
 
 This seems to work now! To swap in pure JS version, use "./utils/toHex"
 
-## "crc-32": "../node_modules/crc-32/crc32"
+####  "crc-32": "../node_modules/crc-32/crc32"
 
 Uses patch in `patches` folder applied by `npm run postinstall`
 
-## "async-lock": "../packages/async-lock-master/lib/index"
+####  "async-lock": "../packages/async-lock-master/lib/index"
 
 - [ ] TODO: port to a patch
 
-## "clean-git-ref": "../packages/clean-git-ref-master/src/index"
+####  "clean-git-ref": "../packages/clean-git-ref-master/src/index"
 
 - [ ] TODO: port to a patch
 
-## "git-apply-delta": "../packages/git-apply-delta-master/index"
+####  "git-apply-delta": "../packages/git-apply-delta-master/index"
 
 - [ ] TODO: port to a patch
