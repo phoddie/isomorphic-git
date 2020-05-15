@@ -197,11 +197,19 @@
 	"platforms": {
 		"esp": {},
 		"esp32": {
+			"build": {
+				"PARTITIONS_FILE": "../esp-idf/partitionsWithFAT32.csv"
+			},
 			"config": {
 				"rotation": 90,
 				"wifi": true,
-				"fs": false,
+				"fs": true,
 				"proxy": false
+			},
+			"defines": {
+				"file":{
+					"fat32": 1
+				}
 			}
 		},
 		"qca4020": {},
