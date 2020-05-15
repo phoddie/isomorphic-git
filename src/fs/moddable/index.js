@@ -1,7 +1,7 @@
 /* eslint-disable no-debugger */
 
 // import { File, Iterator, System } from 'file'
-import { File, Iterator } from 'file'
+import { File, Iterator, Directory } from 'file'
 import { Stat } from 'fs/moddable/Stat'
 
 class FsPromisesClient {
@@ -74,12 +74,12 @@ class FsPromisesClient {
     const dir = [parts.shift()]
     while (parts.length) {
       dir.push(parts.shift())
-      File.createDirectory(dir.join('/'))
+      Directory.create(dir.join('/'))
     }
   }
 
-  static async rmdir() {
-    debugger
+  static async rmdir(path) {
+	Directory.delete(path);
   }
 
   static async unlink(path) {
