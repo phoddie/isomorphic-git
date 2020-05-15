@@ -220,8 +220,8 @@
 		"brightness": 50
 	},
 	"creation": {
-		"static": 98304,
-		"stack": 1024,
+		"static": 131000,
+		"stack": 768,
 		"keys": {
 			"available": 32,
 		},
