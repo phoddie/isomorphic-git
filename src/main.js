@@ -45,15 +45,10 @@ globalThis.Buffer = ModdableBuffer
 // process.domain shim (used by 'async-lock'?!)
 globalThis.process = Object.freeze({domain: null});
 
-const dir = config.file.root + "tmp/moddable-test2"
-trace(`Working directory: ${dir}\n`);
+const dir = config.file.root + "tmp/moddable-test"
 
 // Main code
 const userAgent = 'git/isomorphic-git moddable-branch'
-let string = ''
-let stopInterval = false;
-
-let title = 'Hello world'
 
 const HomeScreen = Column.template($ => ({
   top: 0,
@@ -108,21 +103,19 @@ const HomeScreen = Column.template($ => ({
 class ApplicationBehavior extends Behavior {
   onCreate(application) {
     global.application = application
-    // WiFi.mode = 1
-    this.doNext(application, 'HOME', { title: '[title]', string })
-    application.interval = 500
-    application.start()
+    this.doNext(application, 'HOME', { title: 'hello world', string: Net.get('IP') })
   }
 
-  onTimeChanged(application) {
-    const data = {
-      title,
-      string,
-    }
-    if (this.data?.VSCROLLER?.scroll) {
-      data.scroll = this.data.VSCROLLER.scroll
-    }
-    this.doNext(application, 'HOME', data)
+  setTitle(title) {
+	  let label = application.first.content(0);
+	  label.string = title;
+  }
+  setBody(string) {
+    let scroller = application.first.content(1);
+    let text = scroller.first;
+    text.string = string;
+    if (string)
+		console.log(string)
   }
 
   doNext(application, nextScreenName, nextScreenData = {}) {
@@ -135,26 +128,15 @@ class ApplicationBehavior extends Behavior {
     switch (nextScreenName) {
       case 'HOME':
         application.add(new HomeScreen(nextScreenData))
-        if (stopInterval) application.interval = 100000000
         break
     }
   }
 }
 Object.freeze(ApplicationBehavior.prototype)
 
-export default function() {
-  return new Application(null, {
-    displayListLength: 25600,
-    commandListLength: 2048,
-    touchCount: 1,
-    Behavior: ApplicationBehavior,
-  })
-}
-
 async function doStuff () {
-	title = Net.get('IP')
 	trace(`IP address ${Net.get('IP')}\n`)
-	string = `IP address ${Net.get('IP')}\n`
+//	string = `IP address ${Net.get('IP')}\n`
 	let result = await getRemoteInfo({
 		http,
 		corsProxy: config.proxy && 'http://localhost:9998',
@@ -172,12 +154,11 @@ async function doStuff () {
 			'User-Agent': userAgent
 		}
 	})
-	string = JSON.stringify(result, null, 2)
-	console.log(string)
+
+	application.behavior.setBody(JSON.stringify(result, null, 2));
 	result = undefined;
 
 	if (!config.fs) {
-		stopInterval = true
 		return
 	}
 
@@ -196,9 +177,8 @@ trace("MAIN - INIT\n");
 	//   "hooks",
 	//   "refs"
 	// ]
-	title = 'init'
-	string = JSON.stringify(files, null, 2)
-	console.log(string)
+	application.behavior.setTitle('init');
+	application.behavior.setBody(JSON.stringify(files, null, 2));
 	files = undefined;
 
 trace("MAIN - ADDREMOTE\n");
@@ -217,16 +197,15 @@ trace("MAIN - CURRENTBRANCH\n");
 		dir,
 	})
 	// should print "master"
-	title = 'currentBranch'
-	string = JSON.stringify(branch, null, 2)
-	console.log(string)
+	application.behavior.setTitle('currentBranch');
+	application.behavior.setBody(JSON.stringify(branch, null, 2));
 	branch = undefined;
 
 	// This should create a packfile and a packfile index in
 	// /tmp/moddable-test/.git/objects/pack
 trace("MAIN - FETCH\n");
-	title = 'fetch...'
-	string = ''
+	application.behavior.setTitle('fetch...');
+	application.behavior.setBody('');
 	let fetchResult = await fetch({
 		http,
 		fs,
@@ -258,15 +237,14 @@ trace("MAIN - FETCH\n");
 	//   },
 	//   "packfile": "objects/pack/pack-FB367774AD41ABBFDC2F4BE55149F57987E47EEA.pack"
 	// }
-	title = 'fetch'
-	string = JSON.stringify(fetchResult, null, 2)
-	console.log(string)
+	application.behavior.setTitle('fetch');
+	application.behavior.setBody(JSON.stringify(fetchResult, null, 2));
 
 	const { defaultBranch } = fetchResult
 	fetchResult = undefined;
 	const ref = defaultBranch.replace('refs/heads/', '')
-	title = 'checkout...'
-	string = ''
+	application.behavior.setTitle('checkout...');
+	application.behavior.setBody('');
 	let phase = ''
 	let strings = []
 	try {
@@ -283,46 +261,29 @@ trace("MAIN - CHECKOUT\n");
 					strings[strings.length - 1] = `${val.phase}... ${val.loaded} of ${val.total || 'unknown'}`
 				}
 				phase = val.phase
-				string = strings.join('\n')
+				application.behavior.setBody(strings.join('\n'));
 			}
 		})
-		title = 'checkout'
-		stopInterval = true
+		application.behavior.setTitle('checkout');
 	} catch (e) {
 		console.log(e.message)
 		debugger
 	}
+
+    application.behavior.setTitle('complete');
+    application.behavior.setBody('');
 trace("MAIN - EXIT\n");
 }
 
-if (config.wifi) {
-	// Retrieve wifi info from flash memory
-	const ssid = Preference.get('wifi', 'ssid');
-	const password = Preference.get('wifi', 'password');
+export default function() {
+  trace(`Working directory: ${dir}\n`);
 
-	const monitor = new WiFi(
-		{
-			ssid,
-			password,
-			// channel: 8,
-			// hidden: false
-		},
-		msg => {
-			trace(msg + '\n')
-			switch (msg) {
-				case 'connect':
-					title = 'Connecting'
-					break // still waiting for IP address
-				case 'gotIP':
-					doStuff();
-					break
-				case 'disconnect':
-					title = 'Disconnected!'
-					string = 'Oh dear!'
-					break // connection lost
-			}
-		}
-	)
-} else {
-	doStuff();
+  doStuff();
+
+  return new Application(null, {
+    displayListLength: 25600,
+    commandListLength: 2048,
+    touchCount: 1,
+    Behavior: ApplicationBehavior,
+  })
 }

@@ -193,6 +193,8 @@
 		"storage/*",
 		"utils/*",
 		"wire/*",
+
+		"main"
 	],
 	"platforms": {
 		"esp": {},
@@ -229,7 +231,7 @@
 	},
 	"creation": {
 		"static": 131000,
-		"stack": 768,
+		"stack": 704,
 		"keys": {
 			"available": 32,
 		},
