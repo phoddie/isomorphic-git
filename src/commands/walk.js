@@ -36,8 +36,14 @@ export async function _walk({
     if (parent !== undefined) flatten.unshift(parent)
     return flatten
   },
-  // The default iterate function walks all children concurrently
-  iterate = (walk, children) => Promise.all([...children].map(walk)),
+  // The default iterate function walks all children concurrently^H^H^H for Moddable, we'll do in series
+  iterate = async (walk, children) => {
+    const walkedChildren = []
+    for (const child of children) {
+      walkedChildren.push(await walk(child))
+    }
+    return walkedChildren
+  },
 }) {
   const walkers = trees.map(proxy =>
     proxy[GitWalkSymbol]({ fs, dir, gitdir, cache })
