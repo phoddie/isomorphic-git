@@ -155,7 +155,7 @@ async function doStuff () {
 	title = Net.get('IP')
 	trace(`IP address ${Net.get('IP')}\n`)
 	string = `IP address ${Net.get('IP')}\n`
-	const result = await getRemoteInfo({
+	let result = await getRemoteInfo({
 		http,
 		corsProxy: config.proxy && 'http://localhost:9998',
 		/* this is interesting:
@@ -174,6 +174,7 @@ async function doStuff () {
 	})
 	string = JSON.stringify(result, null, 2)
 	console.log(string)
+	result = undefined;
 
 	if (!config.fs) {
 		stopInterval = true
@@ -198,6 +199,7 @@ trace("MAIN - INIT\n");
 	title = 'init'
 	string = JSON.stringify(files, null, 2)
 	console.log(string)
+	files = undefined;
 
 trace("MAIN - ADDREMOTE\n");
 
@@ -210,7 +212,7 @@ trace("MAIN - ADDREMOTE\n");
 	})
 
 trace("MAIN - CURRENTBRANCH\n");
-	const branch = await currentBranch({
+	let branch = await currentBranch({
 		fs,
 		dir,
 	})
@@ -218,13 +220,14 @@ trace("MAIN - CURRENTBRANCH\n");
 	title = 'currentBranch'
 	string = JSON.stringify(branch, null, 2)
 	console.log(string)
+	branch = undefined;
 
 	// This should create a packfile and a packfile index in
 	// /tmp/moddable-test/.git/objects/pack
 trace("MAIN - FETCH\n");
 	title = 'fetch...'
 	string = ''
-	const fetchResult = await fetch({
+	let fetchResult = await fetch({
 		http,
 		fs,
 		corsProxy: config.proxy && 'http://localhost:9998',
@@ -260,6 +263,7 @@ trace("MAIN - FETCH\n");
 	console.log(string)
 
 	const { defaultBranch } = fetchResult
+	fetchResult = undefined;
 	const ref = defaultBranch.replace('refs/heads/', '')
 	title = 'checkout...'
 	string = ''
