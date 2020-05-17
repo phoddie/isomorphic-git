@@ -307,6 +307,9 @@ async function analyze({
       if (filepaths && !filepaths.some(base => worthWalking(fullpath, base))) {
         return null
       }
+      if (fullpath === '.git') {
+        return null
+      }
       // Emit progress event
       if (onProgress) {
         await onProgress({ phase: 'Analyzing workdir', loaded: ++count })

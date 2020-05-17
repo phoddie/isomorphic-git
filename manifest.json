@@ -212,8 +212,6 @@
 			},
 			"config": {
 				"rotation": 90,
-				"wifi": true,
-				"fs": true,
 				"proxy": false
 			},
 			"defines": {
@@ -225,8 +223,6 @@
 		"qca4020": {},
 		"mac": {
 			"config": {
-				"wifi": false,
-				"fs": true,
 				"proxy": true
 			}
 		},

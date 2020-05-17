@@ -14,12 +14,8 @@ import 'buffer'
 import 'process'
 
 // isomorphic-git functions
-import { addRemote } from 'api/addRemote'
-import { checkout } from 'api/checkout'
-import { currentBranch } from 'api/currentBranch'
-import { fetch } from 'api/fetch'
+import { clone } from 'api/clone'
 import { getRemoteInfo } from 'api/getRemoteInfo'
-import { init } from 'api/init'
 
 // isomorphic-git clients
 import fs from 'fs/moddable'
@@ -100,7 +96,7 @@ class ApplicationBehavior extends Behavior {
     const scroller = application.first.content(1)
     const text = scroller.first
     text.string = string
-    if (string) console.log(string)
+    if (string) trace(string, '\n')
   }
 
   doNext(application, nextScreenName, nextScreenData = {}) {
@@ -121,127 +117,63 @@ Object.freeze(ApplicationBehavior.prototype)
 
 async function doStuff() {
   trace(`IP address ${Net.get('IP')}\n`)
-  //	string = `IP address ${Net.get('IP')}\n`
-  let result = await getRemoteInfo({
+
+  await getRemoteInfo({
     http,
-    corsProxy: config.proxy && 'http://localhost:9998',
-    /* this is interesting:
-    date validation failed on received certificate
-  /Users/wmhilton/code/Moddable-OpenSource/moddable/modules/crypt/ssl/ssl_handshake.js (495) # Exception: throw!
-
-    Got another one:
-    /Users/wmhilton/code/Moddable-OpenSource/moddable/modules/crypt/ssl/ssl_alert.js (82) # Exception: throw!
-
-    both times on Mac btw.
-  */
-    url: 'https://github.com/isomorphic-git/test.empty.git',
+    url: 'https://github.com/isomorphic-git/test.empty',
     headers: {
       'User-Agent': userAgent,
     },
   })
 
-  application.behavior.setBody(JSON.stringify(result, null, 2))
-  result = undefined
-
-  if (!config.fs) {
-    return
+  trace('DELETING OLD FILES\n')
+  let string = ''
+  application.behavior.setTitle('deleting files...')
+  const _dir = dir
+  // depth first recursive delete
+  const rmrf = async dir => {
+    try {
+      const entries = await fs.promises.readdir(dir)
+      for (const entry of entries) {
+        await rmrf(`${dir}/${entry}`)
+      }
+      await fs.promises.rmdir(dir)
+      string += `${dir.replace(_dir, '')}, `
+      application.behavior.setBody(string)
+    } catch (e) {
+      await fs.promises.unlink(dir)
+      string += `${dir.replace(_dir, '')}, `
+      application.behavior.setBody(string)
+    }
   }
 
-  trace('MAIN - INIT\n')
-  await init({
-    fs,
-    dir,
-  })
-  let files = await fs.promises.readdir(dir + '/.git')
-  // should print:
-  // [
-  //   "config",
-  //   "objects",
-  //   "HEAD",
-  //   "info",
-  //   "hooks",
-  //   "refs"
-  // ]
-  application.behavior.setTitle('init')
-  application.behavior.setBody(JSON.stringify(files, null, 2))
-  files = undefined
+  try {
+    await rmrf(dir)
+  } catch (e) {
+    trace(e.message)
+    debugger
+  }
 
-  trace('MAIN - ADDREMOTE\n')
-
-  await addRemote({
-    fs,
-    dir,
-    remote: 'origin',
-    url: 'https://github.com/isomorphic-git/test.empty.git',
-    force: true,
-  })
-
-  trace('MAIN - CURRENTBRANCH\n')
-  let branch = await currentBranch({
-    fs,
-    dir,
-  })
-  // should print "master"
-  application.behavior.setTitle('currentBranch')
-  application.behavior.setBody(JSON.stringify(branch, null, 2))
-  branch = undefined
-
-  // This should create a packfile and a packfile index in
-  // /tmp/moddable-test/.git/objects/pack
-  trace('MAIN - FETCH\n')
-  application.behavior.setTitle('fetch...')
-  application.behavior.setBody('')
-  let string = ''
-  let fetchResult = await fetch({
-    http,
-    fs,
-    corsProxy: config.proxy && 'http://localhost:9998',
-    dir,
-    onMessage(msg) {
-      console.log(msg)
-      string += msg
-      application.behavior.setBody(string)
-    },
-  })
-  // should print something like:
-  // {
-  //   "defaultBranch": "refs/heads/test",
-  //   "fetchHead": "5a8905a02e181fe1821068b8c0f48cb6633d5b81",
-  //   "fetchHeadDescription": "branch 'HEAD' of https://github.com/isomorphic-git/test.empty.git",
-  //   "headers": {
-  //     "access-control-allow-origin": "*",
-  //     "access-control-expose-headers": "accept-ranges,age,cache-control,content-length,content-language,content-type,date,etag,expires,last-modified,pragma,server,transfer-encoding,vary,x-github-request-id,x-redirected-url",
-  //     "cache-control": "no-cache, max-age=0, must-revalidate",
-  //     "content-type": "application/x-git-upload-pack-result",
-  //     "expires": "Fri, 01 Jan 1980 00:00:00 GMT",
-  //     "pragma": "no-cache",
-  //     "server": "GitHub Babel 2.0",
-  //     "transfer-encoding": "chunked",
-  //     "vary": "Accept-Encoding",
-  //     "x-github-request-id": "DF37:64AB:5FDD:C010:5EB07590",
-  //     "date": "Mon, 04 May 2020 20:05:37 GMT",
-  //     "connection": "close"
-  //   },
-  //   "packfile": "objects/pack/pack-FB367774AD41ABBFDC2F4BE55149F57987E47EEA.pack"
-  // }
-  application.behavior.setTitle('fetch')
-  application.behavior.setBody(JSON.stringify(fetchResult, null, 2))
-
-  const { defaultBranch } = fetchResult
-  fetchResult = undefined
-  const ref = defaultBranch.replace('refs/heads/', '')
-  application.behavior.setTitle('checkout...')
-  application.behavior.setBody('')
+  trace('MAIN - CLONE\n')
+  string = ''
   let phase = ''
   const strings = []
+  application.behavior.setBody('')
+  application.behavior.setTitle('cloning...')
   try {
-    trace('MAIN - CHECKOUT\n')
-    await checkout({
+    await clone({
       fs,
+      http,
       dir,
-      ref,
+      url: 'https://github.com/isomorphic-git/test.empty',
+      headers: {
+        'User-Agent': userAgent,
+      },
+      onMessage(msg) {
+        string += msg
+        application.behavior.setBody(string)
+      },
       onProgress(val) {
-        console.log(JSON.stringify(val))
         if (val.phase !== phase) {
           strings.push(
             `${val.phase}... ${val.loaded} of ${val.total || 'unknown'}`
@@ -255,16 +187,14 @@ async function doStuff() {
         application.behavior.setBody(strings.join('\n'))
       },
     })
-    application.behavior.setTitle('checkout')
-  } catch (e) {
-    console.log(e.message)
+  } catch (err) {
+    trace(err.message)
     debugger
   }
 
-  application.behavior.setTitle('complete')
-  application.behavior.setBody(
-    await fs.promises.readFile(dir + '/a.txt', 'utf8')
-  )
+  application.behavior.setTitle('clone complete')
+  strings.push(await fs.promises.readFile(dir + '/a.txt', 'utf8'))
+  application.behavior.setBody(strings.join('\n'))
   trace('MAIN - EXIT\n')
 }
 
