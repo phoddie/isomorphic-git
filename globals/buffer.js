@@ -1,5 +1,6 @@
+/* global globalThis */
 // The Buffer class is a subclass of the Uint8Array class...
-export class ModdableBuffer extends Uint8Array {
+globalThis.Buffer = class Buffer extends Uint8Array {
   toString(format) {
     if (format === 'utf8') return String.fromArrayBuffer(this.buffer) // @@ incorrect if view is not entire buffer
 
@@ -20,7 +21,7 @@ export class ModdableBuffer extends Uint8Array {
     for (const buffer of buffers) {
       size += buffer.byteLength
     }
-    const result = new ModdableBuffer(size)
+    const result = new Buffer(size)
     let nextIndex = 0
     for (const buffer of buffers) {
       result.set(buffer, nextIndex)
@@ -32,13 +33,15 @@ export class ModdableBuffer extends Uint8Array {
   static from(iterable, format) {
     if (typeof iterable === 'string') {
       if (!format || format === 'utf8')
-        return new ModdableBuffer(ArrayBuffer.fromString(iterable))
+        return new Buffer(ArrayBuffer.fromString(iterable))
 
       if (format === 'hex') {
         if (iterable.length % 2 === 1) {
-          throw new Error('Buffer.from with hex encoding should have even number of characters')
+          throw new Error(
+            'Buffer.from with hex encoding should have even number of characters'
+          )
         }
-        const buffer = new ModdableBuffer(iterable.length / 2)
+        const buffer = new Buffer(iterable.length / 2)
         for (let i = 0, j = 0; i < iterable.length / 2; i++, j += 2) {
           buffer[i] = parseInt(iterable.slice(j, j + 2), 16)
         }
@@ -50,11 +53,11 @@ export class ModdableBuffer extends Uint8Array {
   }
 
   static isBuffer(buffer) {
-    return buffer instanceof ModdableBuffer
+    return buffer instanceof Buffer
   }
 
   static alloc(length) {
-    return new ModdableBuffer(length)
+    return new Buffer(length)
   }
 
   readUInt32BE(pos) {
@@ -98,7 +101,8 @@ export class ModdableBuffer extends Uint8Array {
       length = Math.min(length, this.length - offset)
     }
 
-    const buffer = ModdableBuffer.from(content, encoding).slice(0, length)
+    const buffer = Buffer.from(content, encoding).slice(0, length)
     this.set(buffer, offset)
   }
 }
+Object.freeze(Buffer.prototype)

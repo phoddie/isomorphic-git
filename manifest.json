@@ -31,6 +31,10 @@
 		"utils/sha1": "../packages/stub/sha1",
 		"utils/toHex": "../packages/stub/toHex",
 
+		"console": "../globals/console",
+		"buffer": "../globals/buffer",
+		"process": "../globals/process",
+
 		"typedefs": "./typedefs",
 		"typedefs-http": "./typedefs-http",
 		"api/addRemote": "./api/addRemote",
@@ -180,6 +184,10 @@
 		"preference",
 		"scroller",
 		"mod/inflate",
+
+		"console",
+		"buffer",
+		"process",
 
 		"fs/moddable",
 		"fs/moddable/Stat",
