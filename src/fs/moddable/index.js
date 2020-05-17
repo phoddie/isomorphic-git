@@ -167,4 +167,5 @@ class FsPromisesClient {
   }
 }
 
-export default { promises: FsPromisesClient }
+export default Object.freeze({ promises: FsPromisesClient });
+

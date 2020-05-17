@@ -19,7 +19,7 @@ const refpaths = ref => [
 ]
 
 // @see https://git-scm.com/docs/gitrepository-layout
-const GIT_FILES = ['config', 'description', 'index', 'shallow', 'commondir']
+const GIT_FILES = Object.freeze(['config', 'description', 'index', 'shallow', 'commondir']);
 
 export class GitRefManager {
   static async updateRemoteRefs({

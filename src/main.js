@@ -75,11 +75,8 @@ const HomeScreen = Column.template($ => ({
   ],
 }))
 
-let application
-
 class ApplicationBehavior extends Behavior {
-  onCreate(_application) {
-    application = _application
+  onCreate(application) {
     this.doNext(application, 'HOME', {
       title: 'hello world',
       string: Net.get('IP'),
@@ -123,7 +120,7 @@ async function doStuff() {
   application.behavior.setTitle('deleting files...')
   const _dir = dir
   // depth first recursive delete
-  const rmrf = async dir => {
+  let rmrf = async dir => {
     try {
       const entries = await fs.promises.readdir(dir)
       for (const entry of entries) {
@@ -140,7 +137,8 @@ async function doStuff() {
   }
 
   try {
-    await rmrf(dir)
+    await rmrf(dir);
+    rmrf = undefined;
   } catch (e) {
     trace(e.message)
     debugger

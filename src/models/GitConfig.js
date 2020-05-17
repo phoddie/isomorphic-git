@@ -18,16 +18,16 @@ const bool = val => {
   )
 }
 
-const schema = {
-  core: {
+const schema = Object.freeze({
+  core: Object.freeze({
     filemode: bool,
     bare: bool,
     logallrefupdates: bool,
     symlinks: bool,
     ignorecase: bool,
     bigFileThreshold: num,
-  },
-}
+  }),
+});
 
 // https://git-scm.com/docs/git-config#_syntax
 
