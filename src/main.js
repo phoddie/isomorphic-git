@@ -192,7 +192,7 @@ export default function() {
   trace(`Working directory: ${dir}\n`)
 
   return new Application(null, {
-    displayListLength: 25600,
+    displayListLength: 4096,
     commandListLength: 2048,
     touchCount: 1,
     Behavior: ApplicationBehavior,
