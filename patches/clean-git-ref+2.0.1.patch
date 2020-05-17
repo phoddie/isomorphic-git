@@ -1,0 +1,12 @@
+diff --git a/node_modules/clean-git-ref/lib/index.js b/node_modules/clean-git-ref/lib/index.js
+index b44fd09..a645e95 100644
+--- a/node_modules/clean-git-ref/lib/index.js
++++ b/node_modules/clean-git-ref/lib/index.js
+@@ -30,4 +30,4 @@ var CleanGitRef = {
+   }
+ };
+ 
+-module.exports = CleanGitRef;
+\ No newline at end of file
++export default CleanGitRef;
+\ No newline at end of file

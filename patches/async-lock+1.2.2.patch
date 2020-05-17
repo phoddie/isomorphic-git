@@ -1,0 +1,16 @@
+diff --git a/node_modules/async-lock/lib/index.js b/node_modules/async-lock/lib/index.js
+index 1055e58..be8b082 100644
+--- a/node_modules/async-lock/lib/index.js
++++ b/node_modules/async-lock/lib/index.js
+@@ -1,4 +1,4 @@
+-'use strict';
++var process = Object.freeze({ domain: null })
+ 
+ var AsyncLock = function (opts) {
+ 	opts = opts || {};
+@@ -252,4 +252,4 @@ AsyncLock.prototype._promiseTry = function(fn) {
+ 	}
+ };
+ 
+-module.exports = AsyncLock;
++export default AsyncLock;

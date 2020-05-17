@@ -113,7 +113,7 @@ export class GitPackIndex {
     let lastPercent = null
 
     await listpack([pack], async ({ data, type, reference, offset, num }) => {
-      if (totalObjectCount === null) totalObjectCount = num
+      if (totalObjectCount === null) totalObjectCount = num + 1
       const percent = Math.floor(
         ((totalObjectCount - num) * 100) / totalObjectCount
       )

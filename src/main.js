@@ -11,7 +11,6 @@ import { VerticalScrollerBehavior } from 'scroller'
 // Globals used by isomorphic-git
 import 'console'
 import 'buffer'
-import 'process'
 
 // isomorphic-git functions
 import { clone } from 'api/clone'

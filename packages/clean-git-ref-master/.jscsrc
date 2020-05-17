@@ -1,8 +1,0 @@
-{
-  "plugins": ["wealthfront-javascript"],
-  "preset": "wealthfront-javascript",
-  "validateQuoteMarks": {
-    "mark": "'",
-    "escape": true
-  }
-}

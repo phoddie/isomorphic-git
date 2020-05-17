@@ -1,28 +1,32 @@
 # Port of Isomorphic-Git to Moddable SDK
-#### Updated May 15, 2020
+#### Updated May 17, 2020
 #### Peter Hoddie
 
 ## Introduction
 
 Porting work began April 30, 2020
 
-At this time, the port does nothing useful. But it does build, link, and launch. So, it is a starting point.
+At this time, the port barely does anything useful. It can clone a nearly empty repository containing a single file
+that just says "Hello" but even that nearly exhausts the Moddable Two's memory.
 
 ### Building and running
 
-- Download the latest Moddable SDK (May 1 or later)
+- Download the latest Moddable SDK (May 15 2020 or later)
 - `cd ${isomorphic-git}/src`
-- `./node_modules/.bin/cors-proxy start -p 9998` to launch the CORS proxy (not technically needed, but eliminates TLS as a possible source of error)
 - `rm -rf /tmp/moddable-test/ && mcconfig -d -m -p mac` to build for and run on Mac simulator
-  - if you get this error (`/moddable/modules/network/http/http.js (193) # Exception: throw!`) then kill and restart the `cors-proxy` from the step above
-- `mcconfig -d -m -p esp32` to build for and run on ESP32
+  - if you get this error (`/moddable/modules/network/http/http.js (193) # Exception: throw!`) then re-run it
+- `mcconfig -d -m -p esp32/moddable_two ssid="$YOUR_WIFI_NETWORK" password="$YOUR_WIFI_PASSWORD"` to build for and run on ESP32
 
 > Note: All modules are preloaded. This saves RAM and decreases load time, both critical for embedded targets.
 
-To verify the results run:
+If successful the final screen looks like this:
+
+![Moddable Two screenshot](../website/static/img/ModdableTwo_complete.png)
+
+If running on a Mac, you can verify the packfile index as follows:
 
 ```sh
-cd /tmp/moddable-test
+cd /Users/Shared/tmp/moddable-test
 git verify-pack -v .git/objects/pack/pack-fb367774ad41abbfdc2f4be55149f57987e47eea.idx
 ```
 
@@ -67,15 +71,15 @@ The original code uses relative paths to import modules. On embedded targets, th
 
 ### Stub Notes:
 
-#### "utils/sha1": "../packages/stub/sha1"
+#### "utils/sha1": "../packages/native/sha1"
 
 This seems to work now! To swap in pure JS version, use "./utils/sha1"
 
-####  "pako": "../packages/stub/pako"
+####  "pako": "../packages/native/pako"
 
 This seems to work now! To swap in pure JS version, use "../node_modules/pako/dist/pako.min" (Uses patch in `patches` folder applied by `npm run postinstall`)
 
-####  "utils/toHex": "../packages/stub/toHex"
+####  "utils/toHex": "../packages/native/toHex"
 
 This seems to work now! To swap in pure JS version, use "./utils/toHex"
 
@@ -83,14 +87,14 @@ This seems to work now! To swap in pure JS version, use "./utils/toHex"
 
 Uses patch in `patches` folder applied by `npm run postinstall`
 
-####  "async-lock": "../packages/async-lock-master/lib/index"
+####  "async-lock": "../node_modules/async-lock/lib/index"
 
-- [ ] TODO: port to a patch
+Uses patch in `patches` folder applied by `npm run postinstall`
 
-####  "clean-git-ref": "../packages/clean-git-ref-master/src/index"
+####  "clean-git-ref": "../node_modules/clean-git-ref/lib/index"
 
-- [ ] TODO: port to a patch
+Uses patch in `patches` folder applied by `npm run postinstall`
 
-####  "git-apply-delta": "../packages/git-apply-delta-master/index"
+####  "git-apply-delta": "../packages/stub/git-apply-delta"
 
-- [ ] TODO: port to a patch
+- [ ] TODO: write a patch or rewrite

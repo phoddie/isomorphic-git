@@ -22,18 +22,17 @@
 
 		"mod/inflate": "$(MODDABLE)/modules/data/inflate/inflate",
 
-		"async-lock": "../packages/async-lock-master/lib/index",
-		"clean-git-ref": "../packages/clean-git-ref-master/src/index",
+		"async-lock": "../node_modules/async-lock/lib/index",
+		"clean-git-ref": "../node_modules/clean-git-ref/lib/index",
 		"crc-32": "../node_modules/crc-32/crc32",
-		"git-apply-delta": "../packages/git-apply-delta-master/index",
-		"pako": "../packages/stub/pako",
+		"git-apply-delta": "../packages/stub/git-apply-delta",
+		"pako": "../packages/native/pako",
 		"pify": "../packages/stub/pify",
-		"utils/sha1": "../packages/stub/sha1",
-		"utils/toHex": "../packages/stub/toHex",
+		"utils/sha1": "../packages/native/sha1",
+		"utils/toHex": "../packages/native/toHex",
 
 		"console": "../globals/console",
 		"buffer": "../globals/buffer",
-		"process": "../globals/process",
 
 		"typedefs": "./typedefs",
 		"typedefs-http": "./typedefs-http",
@@ -151,7 +150,6 @@
 		"utils/indent": "./utils/indent",
 		"utils/outdent": "./utils/outdent",
 		"utils/join": "./utils/join",
-		"utils/ModdableBuffer": "./utils/ModdableBuffer",
 		"utils/mode2type": "./utils/mode2type",
 		"utils/normalizeMode": "./utils/normalizeMode",
 		"utils/normalizeNewlines": "./utils/normalizeNewlines",
@@ -187,7 +185,6 @@
 
 		"console",
 		"buffer",
-		"process",
 
 		"fs/moddable",
 		"fs/moddable/Stat",
@@ -211,8 +208,7 @@
 				"PARTITIONS_FILE": "../esp-idf/partitionsWithFAT32.csv"
 			},
 			"config": {
-				"rotation": 90,
-				"proxy": false
+				"rotation": 90
 			},
 			"defines": {
 				"file":{
@@ -223,7 +219,6 @@
 		"qca4020": {},
 		"mac": {
 			"config": {
-				"proxy": true
 			}
 		},
 		"...": {
