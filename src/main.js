@@ -109,6 +109,7 @@ class ApplicationBehavior extends Behavior {
     switch (nextScreenName) {
       case 'HOME':
         application.add(new HomeScreen(nextScreenData))
+        doStuff(application)
         break
     }
   }
@@ -117,14 +118,6 @@ Object.freeze(ApplicationBehavior.prototype)
 
 async function doStuff() {
   trace(`IP address ${Net.get('IP')}\n`)
-
-  await getRemoteInfo({
-    http,
-    url: 'https://github.com/isomorphic-git/test.empty',
-    headers: {
-      'User-Agent': userAgent,
-    },
-  })
 
   trace('DELETING OLD FILES\n')
   let string = ''
@@ -200,8 +193,6 @@ async function doStuff() {
 
 export default function() {
   trace(`Working directory: ${dir}\n`)
-
-  doStuff()
 
   return new Application(null, {
     displayListLength: 25600,
