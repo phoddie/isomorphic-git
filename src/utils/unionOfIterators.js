@@ -58,3 +58,4 @@ export function* unionOfIterators(sets) {
     if (min.value === null) return
   }
 }
+Object.freeze(unionOfIterators.prototype)

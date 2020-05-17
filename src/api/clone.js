@@ -5,6 +5,9 @@ import { _clone } from 'commands/clone'
 import { FileSystem } from 'models/FileSystem'
 import { assertParameter } from 'utils/assertParameter'
 import { join } from 'utils/join'
+import { clearPackfileCache } from 'storage/readPackIndex'
+import { clearRegexCache } from 'models/GitConfig'
+import { clearAbbreviateRegex } from 'utils/abbreviateRef'
 
 /**
  * Clone a repository
@@ -79,7 +82,7 @@ export async function clone({
     }
     assertParameter('url', url)
 
-    return await _clone({
+    const result = await _clone({
       fs: new FileSystem(fs),
       cache: {},
       http,
@@ -103,6 +106,13 @@ export async function clone({
       noTags,
       headers,
     })
+
+    // Clean up memory usage
+    clearPackfileCache()
+    clearRegexCache()
+    clearAbbreviateRegex()
+
+    return result
   } catch (err) {
     err.caller = 'git.clone'
     throw err

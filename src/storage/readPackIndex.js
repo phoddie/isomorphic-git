@@ -13,6 +13,10 @@ async function loadPackIndex({
   return GitPackIndex.fromIdx({ idx, getExternalRefDelta })
 }
 
+export function clearPackfileCache() {
+  PackfileCache = undefined
+}
+
 export function readPackIndex({
   fs,
   filename,

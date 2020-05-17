@@ -38,7 +38,7 @@ const schema = Object.freeze({
 // subsection is specified after section and one or more spaces
 // subsection is specified between double quotes
 class REGEX {
-	static cache = [];
+	static cache = {};
 	static get SECTION_LINE() {
 		if (REGEX.cache.SECTION_LINE)
 			return REGEX.cache.SECTION_LINE;
@@ -64,6 +64,13 @@ class REGEX {
 			return REGEX.cache.VARIABLE_VALUE_COMMENT;
 		return REGEX.cache.VARIABLE_VALUE_COMMENT = /^(.*?)( *[#;].*)$/
 	}
+}
+export function clearRegexCache() {
+  REGEX.cache.SECTION_LINE = undefined
+  REGEX.cache.SECTION = undefined
+  REGEX.cache.VARIABLE_LINE = undefined
+  REGEX.cache.VARIABLE_NAME = undefined
+  REGEX.cache.VARIABLE_VALUE_COMMENT = undefined
 }
 //const SECTION_LINE_REGEX = /^\[([A-Za-z0-9-.]+)(?: "(.*)")?\]$/
 //const SECTION_REGEX = /^[A-Za-z0-9-.]+$/

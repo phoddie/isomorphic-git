@@ -14,3 +14,7 @@ export function abbreviateRef(ref) {
   }
   return ref
 }
+
+export function clearAbbreviateRegex() {
+  abbreviateRx = undefined
+}
