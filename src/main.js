@@ -135,11 +135,11 @@ async function doStuff() {
       application.behavior.setBody(string)
     }
   }
-  string = undefined
 
   try {
     await rmrf(dir);
     rmrf = undefined;
+    string = undefined
   } catch (e) {
     trace(e.message)
     debugger
