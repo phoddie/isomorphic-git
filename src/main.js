@@ -118,7 +118,7 @@ async function doStuff() {
   trace('DELETING OLD FILES\n')
   let string = ''
   application.behavior.setTitle('deleting files...')
-  const _dir = dir
+  const _dir = dir + '/'
   // depth first recursive delete
   let rmrf = async dir => {
     try {
@@ -127,14 +127,15 @@ async function doStuff() {
         await rmrf(`${dir}/${entry}`)
       }
       await fs.promises.rmdir(dir)
-      string += `${dir.replace(_dir, '')}, `
+      string += `${dir.replace(_dir, '')} `
       application.behavior.setBody(string)
     } catch (e) {
       await fs.promises.unlink(dir)
-      string += `${dir.replace(_dir, '')}, `
+      string += `${dir.replace(_dir, '')} `
       application.behavior.setBody(string)
     }
   }
+  string = undefined
 
   try {
     await rmrf(dir);
@@ -145,9 +146,9 @@ async function doStuff() {
   }
 
   trace('MAIN - CLONE\n')
-  string = ''
-  let phase = ''
-  const strings = []
+  let phases = {
+    msg: '',
+  }
   application.behavior.setBody('')
   application.behavior.setTitle('cloning...')
   try {
@@ -160,21 +161,12 @@ async function doStuff() {
         'User-Agent': userAgent,
       },
       onMessage(msg) {
-        string += msg
-        application.behavior.setBody(string)
+        phases.msg += msg + '\n'
+        application.behavior.setBody(Object.values(phases).join('\n'))
       },
       onProgress(val) {
-        if (val.phase !== phase) {
-          strings.push(
-            `${val.phase}... ${val.loaded} of ${val.total || 'unknown'}`
-          )
-        } else {
-          strings[strings.length - 1] = `${val.phase}... ${
-            val.loaded
-          } of ${val.total || 'unknown'}`
-        }
-        phase = val.phase
-        application.behavior.setBody(strings.join('\n'))
+        phases[val.phase] = `${val.phase}... ${val.loaded} of ${val.total || 'unknown'}`
+        application.behavior.setBody(Object.values(phases).join('\n'))
       },
     })
   } catch (err) {
@@ -183,8 +175,9 @@ async function doStuff() {
   }
 
   application.behavior.setTitle('clone complete')
-  strings.push(await fs.promises.readFile(dir + '/a.txt', 'utf8'))
-  application.behavior.setBody(strings.join('\n'))
+  phases.final = await fs.promises.readFile(dir + '/a.txt', 'utf8')
+  application.behavior.setBody(Object.values(phases).join('\n'))
+  phases = undefined
   trace('MAIN - EXIT\n')
 }
 
