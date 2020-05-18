@@ -17,7 +17,7 @@ export function clearPackfileCache() {
   PackfileCache = undefined
 }
 
-export function readPackIndex({
+export async function readPackIndex({
   fs,
   filename,
   getExternalRefDelta,
@@ -30,7 +30,7 @@ export function readPackIndex({
   // Try to get the packfile index from the in-memory cache
   let p = PackfileCache.get(filename)
   if (!p) {
-    p = loadPackIndex({
+    p = await loadPackIndex({
       fs,
       filename,
       getExternalRefDelta,
