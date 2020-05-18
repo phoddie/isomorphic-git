@@ -14,7 +14,6 @@ import 'buffer'
 
 // isomorphic-git functions
 import { clone } from 'api/clone'
-import { getRemoteInfo } from 'api/getRemoteInfo'
 
 // isomorphic-git clients
 import fs from 'fs/moddable'
@@ -156,11 +155,14 @@ async function doStuff() {
       fs,
       http,
       dir,
-      url: 'https://github.com/isomorphic-git/test.empty',
+      url: 'https://github.com/wmhilton/select-case',
+      depth: 1,
+      singleBranch: true,
       headers: {
         'User-Agent': userAgent,
       },
       onMessage(msg) {
+        if (msg.includes('(')) return
         phases.msg += msg + '\n'
         application.behavior.setBody(Object.values(phases).join('\n'))
       },
@@ -175,7 +177,7 @@ async function doStuff() {
   }
 
   application.behavior.setTitle('clone complete')
-  phases.final = await fs.promises.readFile(dir + '/a.txt', 'utf8')
+  phases.final = await fs.promises.readFile(dir + '/README.md', 'utf8')
   application.behavior.setBody(Object.values(phases).join('\n'))
   phases = undefined
   trace('MAIN - EXIT\n')
@@ -185,7 +187,7 @@ export default function() {
   trace(`Working directory: ${dir}\n`)
 
   return new Application(null, {
-    displayListLength: 4096,
+    displayListLength: 5096,
     commandListLength: 2048,
     touchCount: 1,
     Behavior: ApplicationBehavior,

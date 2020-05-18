@@ -36,13 +36,7 @@
 
 		"typedefs": "./typedefs",
 		"typedefs-http": "./typedefs-http",
-		"api/addRemote": "./api/addRemote",
 		"api/clone": "./api/clone",
-		"api/checkout": "./api/checkout",
-		"api/currentBranch": "./api/currentBranch",
-		"api/fetch": "./api/fetch",
-		"api/getRemoteInfo": "./api/getRemoteInfo",
-		"api/init": "./api/init",
 
 		"commands/STAGE": "./commands/STAGE",
 		"commands/TREE": "./commands/TREE",
